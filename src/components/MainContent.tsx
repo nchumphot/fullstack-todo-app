@@ -10,12 +10,14 @@ export function MainContent(props: {
   showOption: string;
 }): JSX.Element {
   const todaysDate: Date = new Date();
+  const [newDescription, setNewDescription] = useState<string>("");
+  const [newDueDate, setNewDueDate] = useState<string>("");
+  const [editId, setEditId] = useState<number | null>(null);
   const handleMarkAsCompleted = (toDoItem: DbItemWithId) => {
     const urlToChange: string = props.url + "/" + toDoItem.id.toString();
-    axios
-      .patch(urlToChange, { isComplete: true })
-      .then((response) => console.log(response))
-      .catch((error) => console.log(error));
+    axios.patch(urlToChange, { isComplete: true });
+    // .then((response) => console.log(response))
+    // .catch((error) => console.log(error));
   };
   const handleMarkAsNotCompleted = (toDoItem: DbItemWithId) => {
     const urlToChange: string = props.url + "/" + toDoItem.id.toString();
@@ -28,10 +30,6 @@ export function MainContent(props: {
     const urlToChange: string = props.url + "/" + toDoItem.id.toString();
     axios.delete(urlToChange);
   };
-  const [newDescription, setNewDescription] = useState<string>("");
-  const [newDueDate, setNewDueDate] = useState<string>("");
-  const [editId, setEditId] = useState<number>(-1);
-
   const handleEdit = (toDoItem: DbItemWithId) => {
     const urlToChange: string = props.url + "/" + toDoItem.id.toString();
     axios.patch(urlToChange, {
@@ -41,6 +39,8 @@ export function MainContent(props: {
   };
 
   const ToDoEntry = (toDoItem: DbItemWithId): JSX.Element => {
+    const isOverdue: boolean =
+      todaysDate.getTime() > new Date(toDoItem.dueDate).getTime();
     return (
       <div key={toDoItem.id}>
         <hr />
@@ -57,14 +57,7 @@ export function MainContent(props: {
           {toDoItem.description}
         </h2>
         {toDoItem.dueDate && (
-          <p
-            className={
-              todaysDate.getTime() > new Date(toDoItem.dueDate).getTime() &&
-              !toDoItem.isComplete
-                ? "late"
-                : ""
-            }
-          >
+          <p className={isOverdue && !toDoItem.isComplete ? "late" : ""}>
             Due date: {toDoItem.dueDate.substr(0, 10)}
             {/* converting from long date string to YYYY-MM-DD */}
           </p>
@@ -72,7 +65,7 @@ export function MainContent(props: {
         {editId === toDoItem.id && (
           <>
             <input
-              required
+              // required
               type="text"
               value={newDescription}
               onChange={(e) => {
@@ -80,7 +73,7 @@ export function MainContent(props: {
               }}
             />
             <input
-              required
+              // required
               type="date"
               value={newDueDate}
               onChange={(e) => {
@@ -93,7 +86,7 @@ export function MainContent(props: {
         {editId === toDoItem.id ? (
           <button
             onMouseDown={() => {
-              setEditId(-1);
+              setEditId(null);
               setNewDescription("");
               setNewDueDate("");
               handleEdit(toDoItem);
