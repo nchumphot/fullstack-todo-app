@@ -13,28 +13,19 @@ export function AddNewItem(props: {
 
   const handleAddNewItem = () => {
     if (myDescription === "" && myDueDate === "") {
-      alert("Please enter what you want to do and a due date");
+      alert("Please enter what you want to do and a due date (optional)");
     } else if (myDescription === "") {
       alert("Please enter what you want to do");
-    } else if (myDueDate === "") {
-      alert("Please enter a due date");
     } else {
-      const today = new Date();
-      const todaysDate =
-        today.getFullYear() +
-        "-" +
-        (today.getMonth() + 1) +
-        "-" +
-        today.getDate();
-      axios
-        .post(props.url, {
-          description: myDescription,
-          isComplete: false,
-          creationDate: todaysDate,
-          dueDate: myDueDate,
-        })
-        .then((response) => console.log(response))
-        .catch((error) => console.log(error));
+      const todaysDate = new Date();
+      axios.post(props.url, {
+        description: myDescription,
+        isComplete: false,
+        creationDate: todaysDate,
+        dueDate: myDueDate,
+      });
+      // .then((response) => console.log(response))
+      // .catch((error) => console.log(error));
       setMyDescription("");
       setMyDueDate("");
       fetchData(props.url, props.setData);
@@ -57,7 +48,7 @@ export function AddNewItem(props: {
       />
       <br />
       <br />
-      <label>Due date:</label>
+      <label>Due date:</label>{" "}
       <input
         required
         type="date"
