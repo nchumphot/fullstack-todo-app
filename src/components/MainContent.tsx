@@ -1,5 +1,5 @@
 import axios from "axios";
-// import { useState } from "react";
+import { useState } from "react";
 import DbItemWithId from "./DbItemWithId";
 
 export function MainContent(props: {
@@ -27,6 +27,17 @@ export function MainContent(props: {
   const handleDelete = (toDoItem: DbItemWithId) => {
     const urlToChange: string = props.url + "/" + toDoItem.id.toString();
     axios.delete(urlToChange);
+  };
+  const [newDescription, setNewDescription] = useState<string>("");
+  const [newDueDate, setNewDueDate] = useState<string>("");
+  const [editId, setEditId] = useState<number>(-1);
+
+  const handleEdit = (toDoItem: DbItemWithId) => {
+    const urlToChange: string = props.url + "/" + toDoItem.id.toString();
+    axios.patch(urlToChange, {
+      description: newDescription,
+      dueDate: newDueDate,
+    });
   };
 
   const ToDoEntry = (toDoItem: DbItemWithId): JSX.Element => {
@@ -57,6 +68,49 @@ export function MainContent(props: {
             Due date: {toDoItem.dueDate.substr(0, 10)}
             {/* converting from long date string to YYYY-MM-DD */}
           </p>
+        )}
+        {editId === toDoItem.id && (
+          <>
+            <input
+              required
+              type="text"
+              value={newDescription}
+              onChange={(e) => {
+                setNewDescription(e.target.value);
+              }}
+            />
+            <input
+              required
+              type="date"
+              value={newDueDate}
+              onChange={(e) => {
+                setNewDueDate(e.target.value);
+              }}
+            />
+          </>
+        )}
+        {editId === toDoItem.id && <br />}
+        {editId === toDoItem.id ? (
+          <button
+            onMouseDown={() => {
+              setEditId(-1);
+              setNewDescription("");
+              setNewDueDate("");
+              handleEdit(toDoItem);
+            }}
+          >
+            Save
+          </button>
+        ) : (
+          <button
+            onMouseDown={() => {
+              setEditId(toDoItem.id);
+              setNewDescription(toDoItem.description);
+              setNewDueDate(toDoItem.dueDate);
+            }}
+          >
+            Edit
+          </button>
         )}
         <button onMouseDown={() => handleDelete(toDoItem)}>Delete</button>
       </div>
