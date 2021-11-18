@@ -12,7 +12,7 @@ function App(): JSX.Element {
   const [showOption, setShowOption] = useState<string>("All");
   const baseUrl =
     process.env.NODE_ENV === "production"
-      ? "my-project.herokuapp.com"
+      ? "https://vetas-todo-app.herokuapp.com/items"
       : "http://localhost:4000/items";
   // Fetching data from API
   useEffect(() => {
