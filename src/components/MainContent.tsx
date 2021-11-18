@@ -54,7 +54,8 @@ export function MainContent(props: {
                 : ""
             }
           >
-            Due date: {toDoItem.dueDate}
+            Due date: {toDoItem.dueDate.substr(0, 10)}
+            {/* converting from long date string to YYYY-MM-DD */}
           </p>
         )}
         <button onMouseDown={() => handleDelete(toDoItem)}>Delete</button>
