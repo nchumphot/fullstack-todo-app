@@ -17,12 +17,11 @@ export function AddNewItem(props: {
     } else if (myDescription === "") {
       alert("Please enter what you want to do");
     } else {
-      const todaysDate = new Date();
       axios.post(props.url, {
         description: myDescription,
         isComplete: false,
-        creationDate: todaysDate,
-        dueDate: myDueDate,
+        creationDate: new Date(),
+        dueDate: new Date(myDueDate),
       });
       // .then((response) => console.log(response))
       // .catch((error) => console.log(error));
