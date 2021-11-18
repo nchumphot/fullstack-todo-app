@@ -10,8 +10,13 @@ export function MainContent(props: {
   showOption: string;
 }): JSX.Element {
   const todaysDate: Date = new Date();
-  const [newDescription, setNewDescription] = useState<string>("");
-  const [newDueDate, setNewDueDate] = useState<string>("");
+  const [modification, setModification] = useState<{
+    description: string;
+    dueDate: string;
+  }>({
+    description: "",
+    dueDate: "",
+  });
   const [editId, setEditId] = useState<number | null>(null);
   const handleMarkAsCompleted = (toDoItem: DbItemWithId) => {
     const urlToChange: string = props.url + "/" + toDoItem.id.toString();
@@ -21,20 +26,21 @@ export function MainContent(props: {
   };
   const handleMarkAsNotCompleted = (toDoItem: DbItemWithId) => {
     const urlToChange: string = props.url + "/" + toDoItem.id.toString();
-    axios
-      .patch(urlToChange, { isComplete: false })
-      .then((response) => console.log(response))
-      .catch((error) => console.log(error));
+    axios.patch(urlToChange, { isComplete: false });
+    // .then((response) => console.log(response))
+    // .catch((error) => console.log(error));
   };
   const handleDelete = (toDoItem: DbItemWithId) => {
     const urlToChange: string = props.url + "/" + toDoItem.id.toString();
     axios.delete(urlToChange);
   };
   const handleEdit = (toDoItem: DbItemWithId) => {
+    setEditId(null);
+    setModification({ description: "", dueDate: "" });
     const urlToChange: string = props.url + "/" + toDoItem.id.toString();
     axios.patch(urlToChange, {
-      description: newDescription,
-      dueDate: newDueDate,
+      description: modification.description,
+      dueDate: modification.dueDate,
     });
   };
 
@@ -63,32 +69,36 @@ export function MainContent(props: {
           </p>
         )}
         {editId === toDoItem.id && (
-          <>
+          <form>
             <input
-              // required
               type="text"
-              value={newDescription}
+              value={"modification.description"}
+              name="description"
               onChange={(e) => {
-                setNewDescription(e.target.value);
+                console.log(e.target.name, e.target.value, modification);
+                setModification({
+                  ...modification,
+                  [e.target.name]: e.target.value,
+                });
               }}
             />
             <input
-              // required
               type="date"
-              value={newDueDate}
+              value={modification.dueDate.substr(0, 10)}
+              name="dueDate"
               onChange={(e) => {
-                setNewDueDate(e.target.value);
+                setModification({
+                  ...modification,
+                  [e.target.name]: e.target.value,
+                });
               }}
             />
-          </>
+          </form>
         )}
         {editId === toDoItem.id && <br />}
         {editId === toDoItem.id ? (
           <button
             onMouseDown={() => {
-              setEditId(null);
-              setNewDescription("");
-              setNewDueDate("");
               handleEdit(toDoItem);
             }}
           >
@@ -98,8 +108,10 @@ export function MainContent(props: {
           <button
             onMouseDown={() => {
               setEditId(toDoItem.id);
-              setNewDescription(toDoItem.description);
-              setNewDueDate(toDoItem.dueDate);
+              setModification({
+                description: toDoItem.description,
+                dueDate: toDoItem.dueDate,
+              });
             }}
           >
             Edit
@@ -110,34 +122,35 @@ export function MainContent(props: {
     );
   };
 
+  const sortByOption = (a: DbItemWithId, b: DbItemWithId) => {
+    if (props.sortBy === "Due date") {
+      return Date.parse(a.dueDate) - Date.parse(b.dueDate);
+    } else if (props.sortBy === "Creation date") {
+      return Date.parse(a.creationDate) - Date.parse(b.creationDate);
+    } else {
+      return 0;
+    }
+  };
+
+  const filterByOption = (item: DbItemWithId) => {
+    const dueDate: Date = new Date(item.dueDate);
+    if (props.showOption === "Overdue") {
+      if (todaysDate.getTime() > dueDate.getTime() && !item.isComplete) {
+        return item;
+      } else {
+        return null;
+      }
+    } else {
+      return item;
+    }
+  };
+
   const ToDoList = (): JSX.Element => {
     return (
       <>
         {props.data
-          .sort((a, b) => {
-            if (props.sortBy === "Due date") {
-              return Date.parse(a.dueDate) - Date.parse(b.dueDate);
-            } else if (props.sortBy === "Creation date") {
-              return Date.parse(a.creationDate) - Date.parse(b.creationDate);
-            } else {
-              return 0;
-            }
-          })
-          .filter((item) => {
-            const dueDate: Date = new Date(item.dueDate);
-            if (props.showOption === "Overdue") {
-              if (
-                todaysDate.getTime() > dueDate.getTime() &&
-                !item.isComplete
-              ) {
-                return item;
-              } else {
-                return null;
-              }
-            } else {
-              return item;
-            }
-          })
+          .sort(sortByOption)
+          .filter(filterByOption)
           .map((item) => ToDoEntry(item))}
       </>
     );
