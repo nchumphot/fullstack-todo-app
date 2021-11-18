@@ -72,7 +72,7 @@ export function MainContent(props: {
           <form>
             <input
               type="text"
-              value={"modification.description"}
+              value={modification.description}
               name="description"
               onChange={(e) => {
                 console.log(e.target.name, e.target.value, modification);
