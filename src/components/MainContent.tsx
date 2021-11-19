@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import DbItemWithId from "./DbItemWithId";
+import { fetchData } from "../utils/fetchData";
 
 export function MainContent(props: {
   url: string;
@@ -18,30 +19,40 @@ export function MainContent(props: {
     dueDate: "",
   });
   const [editId, setEditId] = useState<number | null>(null);
+  const [state, setState] = useState<number>(0); // use for re-rendering
   const handleMarkAsCompleted = (toDoItem: DbItemWithId) => {
     const urlToChange: string = props.url + "/" + toDoItem.id.toString();
-    axios.patch(urlToChange, { isComplete: true });
-    // .then((response) => console.log(response))
-    // .catch((error) => console.log(error));
+    setState(1);
+    axios
+      .patch(urlToChange, { isComplete: true })
+      .then(() => fetchData(props.url, props.setData))
+      .then(() => setState(0));
   };
   const handleMarkAsNotCompleted = (toDoItem: DbItemWithId) => {
     const urlToChange: string = props.url + "/" + toDoItem.id.toString();
-    axios.patch(urlToChange, { isComplete: false });
-    // .then((response) => console.log(response))
-    // .catch((error) => console.log(error));
+    setState(1);
+    axios
+      .patch(urlToChange, { isComplete: false })
+      .then(() => fetchData(props.url, props.setData))
+      .then(() => setState(0));
   };
   const handleDelete = (toDoItem: DbItemWithId) => {
     const urlToChange: string = props.url + "/" + toDoItem.id.toString();
-    axios.delete(urlToChange);
+    setState(1);
+    axios
+      .delete(urlToChange)
+      .then(() => fetchData(props.url, props.setData))
+      .then(() => setState(0));
   };
   const handleEdit = (toDoItem: DbItemWithId) => {
-    setEditId(null);
-    setModification({ description: "", dueDate: "" });
     const urlToChange: string = props.url + "/" + toDoItem.id.toString();
     axios.patch(urlToChange, {
       description: modification.description,
       dueDate: modification.dueDate,
     });
+    fetchData(props.url, props.setData)
+      .then(() => setEditId(null))
+      .then(() => setModification({ description: "", dueDate: "" }));
   };
 
   const ToDoEntry = (toDoItem: DbItemWithId): JSX.Element => {
@@ -84,7 +95,9 @@ export function MainContent(props: {
             />
             <input
               type="date"
-              value={modification.dueDate.substr(0, 10)}
+              value={
+                modification.dueDate ? modification.dueDate.substr(0, 10) : " "
+              }
               name="dueDate"
               onChange={(e) => {
                 setModification({
