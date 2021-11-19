@@ -8,6 +8,7 @@ export function AddNewItem(props: {
   data: DbItemWithId[];
   setData: React.Dispatch<React.SetStateAction<DbItemWithId[]>>;
 }): JSX.Element {
+  // console.log("Now rendering AddNewItem");
   const [myDescription, setMyDescription] = useState<string>("");
   const [myDueDate, setMyDueDate] = useState<string>("");
 
@@ -25,9 +26,9 @@ export function AddNewItem(props: {
       });
       // .then((response) => console.log(response))
       // .catch((error) => console.log(error));
+      fetchData(props.url, props.setData);
       setMyDescription("");
       setMyDueDate("");
-      fetchData(props.url, props.setData);
       alert("New to-do item added successfully!");
     }
   };
@@ -42,7 +43,7 @@ export function AddNewItem(props: {
         value={myDescription}
         onChange={(e) => {
           setMyDescription(e.target.value);
-          //   console.log("My new description is:", e.target.value);
+          console.log("My new description is:", e.target.value);
         }}
       />
       <br />
