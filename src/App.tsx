@@ -17,7 +17,7 @@ function App(): JSX.Element {
   // Fetching data from API
   useEffect(() => {
     fetchData(baseUrl, setData);
-  }, [baseUrl, data]);
+  }, [baseUrl]);
 
   return (
     <>
